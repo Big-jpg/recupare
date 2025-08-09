@@ -1,0 +1,144 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========================================
+// AGENTIC WORKFLOW MODELS
+// ========================================
+
+// User model for authentication and permissions
+model User {
+  id          String       @id @default(uuid())
+  name        String
+  email       String       @unique
+  role        String       @default("user") // 'user', 'admin'
+  permissions String       @default("{}")   // JSON string for permissions
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relations
+  requests    Request[]
+  userPermissions Permission[]
+  feedback    Feedback[]
+  
+  @@map("users")
+}
+
+// Request model for task submissions
+model Request {
+  id           String       @id @default(uuid())
+  userId       String
+  targetObject String       // e.g., 'sales_data', 'finance_data'
+  boundedArea  String       // e.g., 'sales', 'finance', 'accounts'
+  instructions String       // Natural language instructions
+  status       String       @default("pending") // 'pending', 'processing', 'completed', 'failed', 'escalated'
+  result       String?      // Agent execution results as JSON string
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+  // Relations
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agentActions AgentAction[]
+  feedback     Feedback[]
+  tasks        Task[]
+  
+  @@map("requests")
+}
+
+// Permission model for user data access
+model Permission {
+  id         String   @id @default(uuid())
+  userId     String
+  dataAccess String   @default("{}") // JSON string defining data access permissions
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Relations
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("permissions")
+}
+
+// AgentAction model for tracking agent activities
+model AgentAction {
+  id         String   @id @default(uuid())
+  requestId  String
+  agentId    String   // Identifier for the agent instance
+  actionType String   // e.g., 'tool_call', 'response', 'error'
+  details    String   @default("{}")  // JSON string for details
+  timestamp  DateTime @default(now())
+  
+  // Relations
+  request    Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  
+  @@map("agent_actions")
+}
+
+// Feedback model for user feedback on agent outputs
+model Feedback {
+  id           String   @id @default(uuid())
+  requestId    String
+  userId       String
+  feedbackText String
+  rating       Int?     // Optional rating 1-5
+  createdAt    DateTime @default(now())
+  
+  // Relations
+  request      Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("feedback")
+}
+
+// Task model for queueing system
+model Task {
+  id              String   @id @default(uuid())
+  requestId       String
+  status          String   @default("pending") // 'pending', 'processing', 'completed', 'failed'
+  assignedAgentId String?  // Which agent is processing this task
+  priority        Int      @default(0) // Task priority (higher = more urgent)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relations
+  request         Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  
+  @@map("tasks")
+}
+
+// ========================================
+// EXISTING DATA LINEAGE MODELS (if needed)
+// ========================================
+
+// Add your existing data lineage models here if you want to manage them with Prisma
+// For example:
+
+// model DataTable {
+//   id          String   @id @default(uuid())
+//   name        String
+//   schema      String
+//   layer       String   // 'bronze', 'silver', 'gold'
+//   createdAt   DateTime @default(now())
+//   updatedAt   DateTime @updatedAt
+//   
+//   @@map("data_tables")
+// }
+
+// model Transformation {
+//   id          String   @id @default(uuid())
+//   sourceTable String
+//   targetTable String
+//   description String?
+//   createdAt   DateTime @default(now())
+//   
+//   @@map("transformations")
+// }
+

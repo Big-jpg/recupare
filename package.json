@@ -1,0 +1,50 @@
+{
+  "name": "vercel-marketplace-neon",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "prebuild": "npx shadcn@latest add button card input",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.0.0",
+    "@openai/agents": "^0.0.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.15",
+    "@radix-ui/react-select": "^2.2.5",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-tabs": "^1.1.12",
+    "@stackframe/stack": "^2.8.25",
+    "@tanstack/react-table": "^8.21.3",
+    "@vercel/analytics": "^1.5.0",
+    "@vercel/postgres": "^0.10.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.525.0",
+    "mermaid": "^11.9.0",
+    "next": "^15.4.3",
+    "next-themes": "^0.4.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "sonner": "^2.0.6",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "3.25.67"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/mermaid": "^9.2.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9",
+    "eslint-config-next": "15.1.6",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  }
+}
+

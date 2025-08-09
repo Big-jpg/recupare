@@ -1,0 +1,590 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================================================
+   CSS CUSTOM PROPERTIES (CSS Variables)
+   ============================================================================= */
+
+@layer base {
+  :root {
+    /* Light theme colors */
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+
+    /* Data lineage specific colors */
+    --bronze: 24.6 95% 53.1%;        /* Orange/copper for bronze layer */
+    --bronze-foreground: 0 0% 100%;
+    --silver: 215.4 16.3% 46.9%;     /* Gray/silver for silver layer */
+    --silver-foreground: 0 0% 100%;
+    --gold: 45.4 93.4% 47.5%;        /* Gold/yellow for gold layer */
+    --gold-foreground: 222.2 84% 4.9%;
+
+    /* Status colors */
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: 355.7 100% 97.3%;
+    --warning: 32.2 95% 44.1%;
+    --warning-foreground: 355.7 100% 97.3%;
+    --info: 199.89 89.09% 48.04%;
+    --info-foreground: 355.7 100% 97.3%;
+
+    /* Chart colors for data visualization */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+
+  .dark {
+    /* Dark theme colors */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+
+    /* Data lineage specific colors (dark theme) */
+    --bronze: 24.6 95% 53.1%;
+    --bronze-foreground: 0 0% 100%;
+    --silver: 215.4 16.3% 65.1%;
+    --silver-foreground: 222.2 84% 4.9%;
+    --gold: 45.4 93.4% 47.5%;
+    --gold-foreground: 222.2 84% 4.9%;
+
+    /* Chart colors for dark theme */
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+/* =============================================================================
+   BASE STYLES
+   ============================================================================= */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Improved focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Smooth scrolling for better UX */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Better text rendering */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* =============================================================================
+   COMPONENT STYLES
+   ============================================================================= */
+
+@layer components {
+  
+  /* Data lineage specific badge styles */
+  .badge-bronze {
+    @apply bg-bronze text-bronze-foreground hover:bg-bronze/80;
+  }
+
+  .badge-silver {
+    @apply bg-silver text-silver-foreground hover:bg-silver/80;
+  }
+
+  .badge-gold {
+    @apply bg-gold text-gold-foreground hover:bg-gold/80;
+  }
+
+  /* Enhanced card styles for better visual hierarchy */
+  .card-enhanced {
+    @apply bg-card text-card-foreground rounded-lg border shadow-sm transition-all duration-200;
+  }
+
+  .card-enhanced:hover {
+    @apply shadow-md border-primary/20;
+  }
+
+  /* Data visualization container */
+  .data-viz-container {
+    @apply bg-card rounded-lg border p-6 shadow-sm;
+  }
+
+  /* Status indicator styles */
+  .status-success {
+    @apply bg-success text-success-foreground;
+  }
+
+  .status-warning {
+    @apply bg-warning text-warning-foreground;
+  }
+
+  .status-info {
+    @apply bg-info text-info-foreground;
+  }
+
+  /* Enhanced button styles */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 focus:ring-secondary;
+  }
+
+  /* Table enhancements for data lineage */
+  .table-lineage {
+    @apply w-full border-collapse;
+  }
+
+  .table-lineage th {
+    @apply bg-muted text-muted-foreground font-medium text-left p-3 border-b;
+  }
+
+  .table-lineage td {
+    @apply p-3 border-b border-border;
+  }
+
+  .table-lineage tr:hover {
+    @apply bg-muted/50;
+  }
+
+  /* Loading states */
+  .loading-skeleton {
+    @apply animate-pulse bg-muted rounded;
+  }
+
+  /* Progress bars for confidence scores */
+  .progress-bar {
+    @apply w-full bg-secondary rounded-full h-2 overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-primary transition-all duration-300 ease-out;
+  }
+
+  /* Relationship flow indicators */
+  .flow-arrow {
+    @apply text-muted-foreground transition-colors duration-200;
+  }
+
+  .flow-arrow.upstream {
+    @apply text-blue-500;
+  }
+
+  .flow-arrow.downstream {
+    @apply text-green-500;
+  }
+
+  /* Enhanced typography for better readability */
+  .text-heading {
+    @apply font-semibold tracking-tight;
+  }
+
+  .text-subheading {
+    @apply text-muted-foreground font-medium;
+  }
+
+  .text-body {
+    @apply leading-relaxed;
+  }
+
+  .text-caption {
+    @apply text-sm text-muted-foreground;
+  }
+}
+
+/* =============================================================================
+   UTILITY STYLES
+   ============================================================================= */
+
+@layer utilities {
+  
+  /* Screen reader only content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .sr-only.focus:not(.sr-only) {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* Enhanced focus styles */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background;
+  }
+
+  /* Gradient backgrounds for visual appeal */
+  .gradient-bronze {
+    background: linear-gradient(135deg, hsl(var(--bronze)) 0%, hsl(var(--bronze)) 100%);
+  }
+
+  .gradient-silver {
+    background: linear-gradient(135deg, hsl(var(--silver)) 0%, hsl(var(--silver)) 100%);
+  }
+
+  .gradient-gold {
+    background: linear-gradient(135deg, hsl(var(--gold)) 0%, hsl(var(--gold)) 100%);
+  }
+
+  /* Animation utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  /* Responsive text utilities */
+  .text-responsive-xl {
+    @apply text-2xl sm:text-3xl lg:text-4xl;
+  }
+
+  .text-responsive-lg {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+
+  .text-responsive-md {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+
+  /* Container utilities for consistent spacing */
+  .container-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-spacing {
+    @apply py-8 sm:py-12 lg:py-16;
+  }
+
+  /* Data visualization specific utilities */
+  .viz-tooltip {
+    @apply bg-popover text-popover-foreground border rounded-md shadow-md p-2 text-sm;
+  }
+
+  .viz-legend {
+    @apply flex flex-wrap gap-4 text-sm;
+  }
+
+  .viz-legend-item {
+    @apply flex items-center gap-2;
+  }
+
+  .viz-legend-color {
+    @apply w-3 h-3 rounded-sm;
+  }
+}
+
+/* =============================================================================
+   ANIMATIONS
+   ============================================================================= */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* =============================================================================
+   PRINT STYLES
+   ============================================================================= */
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  .card-enhanced {
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+  }
+}
+
+/* =============================================================================
+   HIGH CONTRAST MODE SUPPORT
+   ============================================================================= */
+
+@media (prefers-contrast: high) {
+  :root {
+    --border: 0 0% 20%;
+    --ring: 221.2 83.2% 53.3%;
+  }
+
+  .dark {
+    --border: 0 0% 80%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+
+  /* FIXED: High contrast focus indicators using standard CSS instead of Tailwind */
+  .focus-visible {
+    outline: 2px solid currentColor !important;
+    outline-offset: 2px !important;
+  }
+}
+
+/* =============================================================================
+   REDUCED MOTION SUPPORT
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* =============================================================================
+   CUSTOM SCROLLBAR STYLING
+   ============================================================================= */
+
+/* Webkit browsers */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.3) hsl(var(--muted));
+}
+
+/* =============================================================================
+   SOCIAL SHARING OPTIMIZATIONS
+   ============================================================================= */
+
+/* Ensure images are optimized for social sharing */
+.og-image {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+/* Social media preview container */
+.social-preview {
+  @apply border rounded-lg overflow-hidden bg-card;
+  max-width: 500px;
+}
+
+.social-preview-image {
+  @apply w-full h-48 object-cover;
+}
+
+.social-preview-content {
+  @apply p-4;
+}
+
+.social-preview-title {
+  @apply font-semibold text-lg mb-2 line-clamp-2;
+}
+
+.social-preview-description {
+  @apply text-muted-foreground text-sm line-clamp-3;
+}
+
+/* =============================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================================================= */
+
+/* Skip link styling */
+.skip-link {
+  @apply absolute top-4 left-4 bg-primary text-primary-foreground px-4 py-2 rounded-md z-50 transform -translate-y-full opacity-0 transition-all duration-200;
+}
+
+.skip-link:focus {
+  @apply transform translate-y-0 opacity-100;
+}
+
+/* Focus indicators for keyboard navigation */
+.focus-visible {
+  @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+}
+
+/* =============================================================================
+   RESPONSIVE DESIGN ENHANCEMENTS
+   ============================================================================= */
+
+/* Mobile-first responsive utilities */
+.mobile-stack {
+  @apply flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4;
+}
+
+.mobile-grid {
+  @apply grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3;
+}
+
+/* Touch-friendly sizing for mobile */
+@media (max-width: 768px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* =============================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================================================= */
+
+/* GPU acceleration for smooth animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Optimize font loading */
+@font-face {
+  font-family: 'Inter';
+  font-display: swap;
+}
+
+/* =============================================================================
+   DARK MODE SPECIFIC ENHANCEMENTS
+   ============================================================================= */
+
+.dark {
+  /* Enhanced shadows for dark mode */
+  .card-enhanced {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .card-enhanced:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Better contrast for data visualization in dark mode */
+  .viz-tooltip {
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid hsl(var(--border));
+  }
+}
+
