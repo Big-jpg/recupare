@@ -11,31 +11,32 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   // Basic metadata
   title: {
-    default: 'Data Lineage Dashboard',
-    template: '%s | Data Lineage Dashboard'
+    default: 'Agentic Document Intelligence',
+    template: '%s | Agentic Document Intelligence'
   },
-  description: 'Explore your Microsoft Fabric Medallion Architecture with comprehensive data lineage visualization. Track Bronze, Silver, and Gold layer transformations with enterprise-grade insights.',
+  description:
+    'Agentic AI for document retrieval, parsing, and translation. Ingest PDFs, images, and text; extract structured data; translate across languages; and orchestrate end-to-end workflows with AI agents.',
 
   // Keywords for SEO
   keywords: [
-    'data lineage',
-    'microsoft fabric',
-    'medallion architecture',
-    'bronze silver gold',
-    'data transformation',
-    'data governance',
-    'data catalog',
-    'data visualization',
-    'enterprise data',
-    'data pipeline',
-    'data flow',
-    'data mapping'
+    'agentic ai',
+    'document intelligence',
+    'document retrieval',
+    'document parsing',
+    'ocr',
+    'pdf extraction',
+    'translation',
+    'rag',
+    'chunking',
+    'embeddings',
+    'vector search',
+    'workflow automation'
   ],
 
   // Author and creator information
-  authors: [{ name: 'Data Engineering Team' }],
-  creator: 'Data Engineering Team',
-  publisher: 'Data Engineering Team',
+  authors: [{ name: 'Product Engineering Team' }],
+  creator: 'Product Engineering Team',
+  publisher: 'Product Engineering Team',
 
   // Robots and indexing
   robots: {
@@ -53,49 +54,44 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://on-prem-to-cloud-data-lineage.vercel.app',
-    siteName: 'Data Lineage Dashboard',
-    title: 'Data Lineage Dashboard - Microsoft Fabric Medallion Architecture',
-    description: 'Comprehensive data lineage visualization for Bronze, Silver, and Gold layers. Track transformations, relationships, and data flow with enterprise-grade insights.',
+    url: 'https://on-prem-to-cloud-data-lineage.vercel.app', // keep domain for now
+    siteName: 'Agentic Document Intelligence',
+    title: 'Agentic AI for Retrieval, Parsing, and Translation',
+    description:
+      'Upload documents, extract fields, translate, and automate review with AI agents. Built for reliability and scale.',
 
-    // OG Image configuration
+    // OG Image configuration (reuse existing file path for now)
     images: [
       {
-        url: '/og-image-data-lineage.png', // The image we generated
+        url: '/og-image-data-lineage.png',
         width: 1200,
         height: 630,
-        alt: 'Data Lineage Dashboard - Microsoft Fabric Medallion Architecture visualization showing Bronze, Silver, and Gold data layers',
+        alt: 'Agentic Document Intelligence — AI-powered retrieval, parsing, and translation',
         type: 'image/png',
       },
       {
         url: '/og-image-data-lineage.png',
         width: 800,
         height: 600,
-        alt: 'Data Lineage Dashboard - Comprehensive data transformation tracking',
+        alt: 'Agentic Document Intelligence — automate document workflows with AI agents',
         type: 'image/png',
       }
     ],
   },
-  // App-specific metadata
-  applicationName: 'Data Lineage Dashboard',
-  referrer: 'origin-when-cross-origin',
 
-  // Category for app stores
+  // App-specific metadata
+  applicationName: 'Agentic Document Intelligence',
+  referrer: 'origin-when-cross-origin',
   category: 'productivity',
 
   other: {
-    // Custom meta tags
     'theme-color': '#1e293b',
     'color-scheme': 'dark light',
     'format-detection': 'telephone=no',
-
-    // PWA-related
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
-    'apple-mobile-web-app-title': 'Data Lineage',
-
-    // Microsoft-specific
+    'apple-mobile-web-app-title': 'Doc Intelligence',
     'msapplication-TileColor': '#1e293b',
     'msapplication-config': '/browserconfig.xml',
   },
@@ -116,7 +112,6 @@ export const metadata: Metadata = {
 
   manifest: '/site.webmanifest',
 }
-
 
 export default function RootLayout({
   children,
@@ -146,46 +141,49 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              "name": "Data Lineage Dashboard",
-              "description": "Comprehensive data lineage visualization for Microsoft Fabric Medallion Architecture",
+              "name": "Agentic Document Intelligence",
+              "description": "Agentic AI platform for document retrieval, parsing, OCR, and multilingual translation with end-to-end workflow automation.",
               "url": "https://on-prem-to-cloud-data-lineage.vercel.app/",
               "applicationCategory": "BusinessApplication",
               "operatingSystem": "Web Browser",
               "creator": {
                 "@type": "Organization",
-                "name": "Data Engineering Team"
+                "name": "Product Engineering Team"
               },
               "featureList": [
-                "Data lineage visualization",
-                "Bronze, Silver, Gold layer tracking",
-                "Transformation mapping",
-                "Relationship analysis",
-                "Data governance insights"
+                "Document retrieval with vector search (RAG)",
+                "OCR and table extraction from PDFs and images",
+                "Schema-mapped field extraction",
+                "Multilingual translation",
+                "Agentic workflow orchestration and monitoring"
               ]
             })
           }}
         />
       </head>
-      <body className={`${inter.className} antialiased`}><StackProvider app={stackServerApp}><StackTheme>
-        {/* Skip to main content for accessibility */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50"
-        >
-          Skip to main content
-        </a>
+      <body className={`${inter.className} antialiased`}>
+        <StackProvider app={stackServerApp}>
+          <StackTheme>
+            {/* Skip to main content for accessibility */}
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50"
+            >
+              Skip to main content
+            </a>
 
-        {/* Navigation Header */}
-        <Navigation />
+            {/* Navigation Header */}
+            <Navigation />
 
-        {/* Main content wrapper */}
-        <div id="main-content" className="min-h-screen bg-background">
-          {children}
-        </div>
+            {/* Main content wrapper */}
+            <div id="main-content" className="min-h-screen bg-background">
+              {children}
+            </div>
 
-        <Analytics />
-      </StackTheme></StackProvider></body>
+            <Analytics />
+          </StackTheme>
+        </StackProvider>
+      </body>
     </html>
   )
 }
-

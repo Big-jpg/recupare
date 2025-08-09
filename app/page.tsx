@@ -38,18 +38,18 @@ export default function LandingPage() {
       <section className="text-center max-w-3xl space-y-6">
         <Image
           src="/logo.png" // Place branding logo here
-          alt="Data Lineage Logo"
+          alt="Agentic Document Intelligence Logo"
           width={64}
           height={64}
           className="mx-auto"
         />
         <h1 className="text-4xl font-bold tracking-tight">
-          Microsoft Fabric Medallion Lineage
+          Agentic Document Intelligence
         </h1>
         <p className="text-muted-foreground text-lg">
-          Visualize your Bronze → Silver → Gold pipeline with lineage-aware insights, MermaidJS diagrams, and transformation mapping.
-          <span className="block mt-2 text-blue-600 font-medium">
-            Now with AI Agent workflow automation!
+          Retrieve → Parse → Translate. Ingest PDFs, images, and text; extract structured fields; translate across languages; and automate reviews with AI agents.
+          <span className="block mt-2 font-medium">
+            Built for fast retrieval, accurate extraction, and human-in-the-loop control.
           </span>
         </p>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
@@ -66,7 +66,7 @@ export default function LandingPage() {
       <section className="max-w-5xl mx-auto">
         <Image
           src="/preview-dashboard.png"
-          alt="Dashboard Preview"
+          alt="Document workflow dashboard preview with retrieval, parsing, and translation status"
           width={1024}
           height={600}
           className="rounded-lg shadow-lg border"
@@ -76,9 +76,9 @@ export default function LandingPage() {
       {/* Feature Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl w-full">
         <div className="p-6 border rounded-lg shadow-sm bg-card">
-          <h2 className="text-lg font-semibold mb-2">Lineage Insights</h2>
+          <h2 className="text-lg font-semibold mb-2">Retrieval & Search</h2>
           <p className="text-sm text-muted-foreground">
-            Automatically detect and display data table lineage from raw → curated → gold.
+            Vector search (RAG) over your docs for instant grounding and context-aware answers.
           </p>
         </div>
         <div className="p-6 border rounded-lg shadow-sm bg-card">
@@ -88,15 +88,15 @@ export default function LandingPage() {
           </p>
         </div>
         <div className="p-6 border rounded-lg shadow-sm bg-card">
-          <h2 className="text-lg font-semibold mb-2">Mermaid Flowcharts</h2>
+          <h2 className="text-lg font-semibold mb-2">Parsing & OCR</h2>
           <p className="text-sm text-muted-foreground">
-            Generate shareable diagrams of transformations and relationships with MermaidJS.
+            Extract tables and fields from PDFs and images with schema mapping and validation.
           </p>
         </div>
         <div className="p-6 border rounded-lg shadow-sm bg-card bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-          <h2 className="text-lg font-semibold mb-2 text-blue-900">🤖 AI Agents</h2>
+          <h2 className="text-lg font-semibold mb-2 text-blue-900">🌐 Translation & Agents</h2>
           <p className="text-sm text-blue-700">
-            Submit natural language tasks for AI agents to process with real-time monitoring.
+            Translate between languages and orchestrate multi-step workflows with agentic AI.
           </p>
         </div>
       </section>
@@ -106,7 +106,7 @@ export default function LandingPage() {
         <section className="max-w-4xl w-full">
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
             <h3 className="text-xl font-semibold text-blue-900 mb-4">
-              🚀 Agentic Workflow System Status
+              🚀 Agentic Platform Status
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="text-center">
@@ -130,7 +130,7 @@ export default function LandingPage() {
             </div>
             <div className="mt-4 text-center">
               <p className="text-sm text-blue-600">
-                Ready to process your data analysis tasks with AI assistance
+                Ready to process your document workflows with AI assistance
               </p>
             </div>
           </div>
@@ -139,4 +139,3 @@ export default function LandingPage() {
     </main>
   );
 }
-

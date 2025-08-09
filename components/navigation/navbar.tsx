@@ -6,10 +6,8 @@ import { UserButton } from "@/components/auth/user-button";
 import { Button } from "@/components/ui/button";
 import { 
   Database, 
-  GitBranch, 
   Home, 
   Shield, 
-  Table,
   Menu,
   X
 } from "lucide-react";
@@ -21,24 +19,6 @@ const navigationItems = [
     name: "Dashboard",
     href: "/dashboard",
     icon: Home,
-    requiresAuth: true,
-  },
-  {
-    name: "Tables",
-    href: "/tables",
-    icon: Table,
-    requiresAuth: true,
-  },
-  {
-    name: "Lineage",
-    href: "/lineage",
-    icon: GitBranch,
-    requiresAuth: true,
-  },
-  {
-    name: "Relationships",
-    href: "/relationships",
-    icon: Database,
     requiresAuth: true,
   },
   {
@@ -68,7 +48,7 @@ export function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Database className="h-6 w-6 text-primary" />
-              <span className="font-bold text-xl">Data Lineage</span>
+              <span className="font-bold text-xl">DATA LINEAGE</span>
             </Link>
           </div>
 

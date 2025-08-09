@@ -36,13 +36,6 @@ export async function authenticateApiRequest(): Promise<ApiAuthResult> {
     // Pre-resolve common permissions for synchronous access
     const commonPermissions = [
       "admin", 
-      "view_tables", 
-      "create_tables", 
-      "view_lineage", 
-      "create_lineage",
-      "view_bronze",
-      "view_silver", 
-      "view_gold",
       "manage_users"
     ];
     

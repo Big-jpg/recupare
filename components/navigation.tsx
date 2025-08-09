@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@stackframe/stack';
 import { 
-  Home, 
   BarChart3, 
   Plus, 
   User,
@@ -155,18 +154,11 @@ export default function Navigation() {
       icon: Plus,
       description: 'Submit new AI agent tasks',
     },
-    {
-      name: 'Data Lineage',
-      href: '/lineage',
-      icon: Home,
-      description: 'Explore data transformations',
-    },
   ];
 
   const isActive = (href: string) => {
     if (href === '/dashboard' && pathname === '/dashboard') return true;
     if (href === '/submit-task' && pathname === '/submit-task') return true;
-    if (href === '/lineage' && pathname.startsWith('/lineage')) return true;
     return false;
   };
 
@@ -182,7 +174,7 @@ export default function Navigation() {
                   <BarChart3 className="w-5 h-5 text-white" />
                 </div>
                 <span className="ml-2 text-xl font-bold text-gray-900">
-                  Data Lineage
+                  DATA LINEAGE 2
                 </span>
               </Link>
             </div>
