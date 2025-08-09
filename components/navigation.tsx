@@ -146,7 +146,7 @@ export default function Navigation() {
       name: 'Dashboard',
       href: '/dashboard',
       icon: BarChart3,
-      description: 'View your data lineage and AI agent tasks',
+      description: 'View your AI agent tasks in progress and completed',
     },
     {
       name: 'Submit Task',
@@ -174,7 +174,7 @@ export default function Navigation() {
                   <BarChart3 className="w-5 h-5 text-white" />
                 </div>
                 <span className="ml-2 text-xl font-bold text-gray-900">
-                  DATA LINEAGE 2
+                  Agentic Document Intelligence
                 </span>
               </Link>
             </div>

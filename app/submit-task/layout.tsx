@@ -1,37 +1,34 @@
-// app/dashboard/layout.tsx
+// app/submit-task/layout.tsx
 import { stackServerApp } from '@/lib/stack';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Analytics } from '@vercel/analytics/next';
 import { StackProvider } from '@stackframe/stack';
 
-
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    default: 'Data Lineage Dashboard',
-    template: '%s | Data Lineage Dashboard',
+    default: 'Agentic Document Intelligence',
+    template: '%s | Agentic Document Intelligence',
   },
   description:
-    'Explore your Microsoft Fabric Medallion Architecture with comprehensive data lineage visualization. Track Bronze, Silver, and Gold layer transformations with enterprise-grade insights.',
+    'Submit agentic AI jobs for document retrieval, parsing (OCR/table extraction), QA, translation, and export. Ingest PDFs, images, emails, and more.',
   keywords: [
-    'data lineage',
-    'microsoft fabric',
-    'medallion architecture',
-    'bronze silver gold',
-    'data transformation',
-    'data governance',
-    'data catalog',
-    'data visualization',
-    'enterprise data',
-    'data pipeline',
-    'data flow',
-    'data mapping',
+    'agentic ai',
+    'document intelligence',
+    'document parsing',
+    'ocr',
+    'table extraction',
+    'retrieval',
+    'vector search',
+    'translation',
+    'workflow automation',
+    'document processing',
   ],
-  authors: [{ name: 'Data Engineering Team' }],
-  creator: 'Data Engineering Team',
-  publisher: 'Data Engineering Team',
+  authors: [{ name: 'Product Engineering Team' }],
+  creator: 'Product Engineering Team',
+  publisher: 'Product Engineering Team',
   robots: {
     index: true,
     follow: true,
@@ -47,28 +44,21 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://on-prem-to-cloud-data-lineage.vercel.app',
-    siteName: 'Data Lineage Dashboard',
-    title: 'Data Lineage Dashboard - Microsoft Fabric Medallion Architecture',
+    siteName: 'Agentic Document Intelligence',
+    title: 'Submit Agentic Document Tasks',
     description:
-      'Comprehensive data lineage visualization for Bronze, Silver, and Gold layers. Track transformations, relationships, and data flow with enterprise-grade insights.',
+      'Create retrieval, parsing, translation, and export jobs with agentic AI workflows.',
     images: [
       {
-        url: '/og-image-data-lineage.png',
+        url: '/og-image-data-lineage.png', // swap when new asset is ready
         width: 1200,
         height: 630,
-        alt: 'Data Lineage Dashboard - Microsoft Fabric Medallion Architecture visualization showing Bronze, Silver, and Gold data layers',
-        type: 'image/png',
-      },
-      {
-        url: '/og-image-data-lineage.png',
-        width: 800,
-        height: 600,
-        alt: 'Data Lineage Dashboard - Comprehensive data transformation tracking',
+        alt: 'Agentic Document Intelligence — submit task',
         type: 'image/png',
       },
     ],
   },
-  applicationName: 'Data Lineage Dashboard',
+  applicationName: 'Agentic Document Intelligence',
   referrer: 'origin-when-cross-origin',
   category: 'productivity',
   other: {
@@ -78,7 +68,7 @@ export const metadata: Metadata = {
     'mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-capable': 'yes',
     'apple-mobile-web-app-status-bar-style': 'black-translucent',
-    'apple-mobile-web-app-title': 'Data Lineage',
+    'apple-mobile-web-app-title': 'Doc Intelligence',
     'msapplication-TileColor': '#1e293b',
     'msapplication-config': '/browserconfig.xml',
   },
@@ -94,13 +84,13 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
 };
 
-// ✅ This layout is now async to support auth check
+// ✅ Async for auth
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // 🔐 Protect the route: redirect to sign-in if unauthenticated
+  // 🔐 Protect the route
   await stackServerApp.getUser({ or: 'redirect' });
 
   return (
@@ -119,22 +109,22 @@ export default async function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: "Data Lineage Dashboard",
+              name: "Agentic Document Intelligence",
               description:
-                "Comprehensive data lineage visualization for Microsoft Fabric Medallion Architecture",
-              url: "https://on-prem-to-cloud-data-lineage.vercel.app/",
+                "Submit agentic AI tasks for document retrieval (vector search), OCR/table extraction, schema mapping, translation, QA, and export.",
+              url: "https://on-prem-to-cloud-data-lineage.vercel.app/submit-task",
               applicationCategory: "BusinessApplication",
               operatingSystem: "Web Browser",
               creator: {
                 "@type": "Organization",
-                name: "Data Engineering Team",
+                name: "Product Engineering Team",
               },
               featureList: [
-                "Data lineage visualization",
-                "Bronze, Silver, Gold layer tracking",
-                "Transformation mapping",
-                "Relationship analysis",
-                "Data governance insights",
+                "Vector search (RAG) across document stores",
+                "OCR and table extraction from PDFs/images",
+                "Schema-mapped field extraction and validation",
+                "Multilingual translation with quality checks",
+                "Agentic workflow orchestration and monitoring",
               ],
             }),
           }}
@@ -142,16 +132,16 @@ export default async function RootLayout({
       </head>
       <body className={`${inter.className} antialiased`}>
         <StackProvider app={stackServerApp}>
-            <a
-              href="#main-content"
-              className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50"
-            >
-              Skip to main content
-            </a>
-            <div id="main-content" className="min-h-screen bg-background">
-              {children}
-            </div>
-            <Analytics />
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50"
+          >
+            Skip to main content
+          </a>
+          <div id="main-content" className="min-h-screen bg-background">
+            {children}
+          </div>
+          <Analytics />
         </StackProvider>
       </body>
     </html>
