@@ -1,4 +1,6 @@
 import './globals.css';
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import { stackServerApp } from "../stack";
 import { stackServerApp } from '@/lib/stack';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -166,7 +168,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} antialiased`}><StackProvider app={stackServerApp}><StackTheme>
+      <body className={`${inter.className} antialiased`}><StackProvider app={stackServerApp}><StackTheme><StackProvider app={stackServerApp}><StackTheme>
         {/* Skip to main content for accessibility */}
         <a
           href="#main-content"
@@ -184,7 +186,7 @@ export default function RootLayout({
         </div>
 
         <Analytics />
-      </StackTheme></StackProvider></body>
+      </StackTheme></StackProvider></StackTheme></StackProvider></body>
     </html>
   )
 }
