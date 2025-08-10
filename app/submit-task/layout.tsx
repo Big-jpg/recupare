@@ -50,11 +50,11 @@ export const metadata: Metadata = {
       'Create retrieval, parsing, translation, and export jobs with agentic AI workflows.',
     images: [
       {
-        url: '/og-image-data-lineage.png', // swap when new asset is ready
+        url: '/public/og-image-doc-intel.svg', 
         width: 1200,
         height: 630,
-        alt: 'Agentic Document Intelligence — submit task',
-        type: 'image/png',
+        alt: 'Agentic Document Intelligence — retrieval, parsing, translation',
+        type: 'image/svg+xml',
       },
     ],
   },

@@ -44,25 +44,18 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://recupare-dev.vercel.app/p', // keep for now
+    url: 'https://recupare-dev.vercel.app/', 
     siteName: 'Agentic Document Intelligence',
     title: 'Agentic AI for Retrieval, Parsing, and Translation',
     description:
       'Upload documents, extract fields and tables, translate across languages, and automate reviews with AI agents.',
     images: [
       {
-        url: '/og-image-data-lineage.png', // swap later when you have a new asset
+        url: '/public/og-image-doc-intel.svg', 
         width: 1200,
         height: 630,
         alt: 'Agentic Document Intelligence — retrieval, parsing, translation',
-        type: 'image/png',
-      },
-      {
-        url: '/og-image-data-lineage.png',
-        width: 800,
-        height: 600,
-        alt: 'Agentic Document Intelligence — automate document workflows with AI agents',
-        type: 'image/png',
+        type: 'image/svg+xml',
       },
     ],
   },

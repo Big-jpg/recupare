@@ -48,7 +48,7 @@ export function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Database className="h-6 w-6 text-primary" />
-              <span className="font-bold text-xl">DATA LINEAGE</span>
+              <span className="font-bold text-xl">Agentic Document Intelligence</span>
             </Link>
           </div>
 

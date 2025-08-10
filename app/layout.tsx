@@ -63,18 +63,11 @@ export const metadata: Metadata = {
     // OG Image configuration (reuse existing file path for now)
     images: [
       {
-        url: '/og-image-data-lineage.png',
+        url: '/public/og-image-doc-intel.svg',
         width: 1200,
         height: 630,
-        alt: 'Agentic Document Intelligence — AI-powered retrieval, parsing, and translation',
-        type: 'image/png',
-      },
-      {
-        url: '/og-image-data-lineage.png',
-        width: 800,
-        height: 600,
-        alt: 'Agentic Document Intelligence — automate document workflows with AI agents',
-        type: 'image/png',
+        alt: 'Agentic Document Intelligence',
+        type: 'image/svg+xml',
       }
     ],
   },

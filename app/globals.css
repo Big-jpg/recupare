@@ -31,14 +31,6 @@
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
 
-    /* Data lineage specific colors */
-    --bronze: 24.6 95% 53.1%;        /* Orange/copper for bronze layer */
-    --bronze-foreground: 0 0% 100%;
-    --silver: 215.4 16.3% 46.9%;     /* Gray/silver for silver layer */
-    --silver-foreground: 0 0% 100%;
-    --gold: 45.4 93.4% 47.5%;        /* Gold/yellow for gold layer */
-    --gold-foreground: 222.2 84% 4.9%;
-
     /* Status colors */
     --success: 142.1 76.2% 36.3%;
     --success-foreground: 355.7 100% 97.3%;
@@ -76,14 +68,6 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 94.1%;
-
-    /* Data lineage specific colors (dark theme) */
-    --bronze: 24.6 95% 53.1%;
-    --bronze-foreground: 0 0% 100%;
-    --silver: 215.4 16.3% 65.1%;
-    --silver-foreground: 222.2 84% 4.9%;
-    --gold: 45.4 93.4% 47.5%;
-    --gold-foreground: 222.2 84% 4.9%;
 
     /* Chart colors for dark theme */
     --chart-1: 220 70% 50%;
@@ -131,20 +115,6 @@
    ============================================================================= */
 
 @layer components {
-  
-  /* Data lineage specific badge styles */
-  .badge-bronze {
-    @apply bg-bronze text-bronze-foreground hover:bg-bronze/80;
-  }
-
-  .badge-silver {
-    @apply bg-silver text-silver-foreground hover:bg-silver/80;
-  }
-
-  .badge-gold {
-    @apply bg-gold text-gold-foreground hover:bg-gold/80;
-  }
-
   /* Enhanced card styles for better visual hierarchy */
   .card-enhanced {
     @apply bg-card text-card-foreground rounded-lg border shadow-sm transition-all duration-200;
@@ -179,23 +149,6 @@
 
   .btn-secondary {
     @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 focus:ring-secondary;
-  }
-
-  /* Table enhancements for data lineage */
-  .table-lineage {
-    @apply w-full border-collapse;
-  }
-
-  .table-lineage th {
-    @apply bg-muted text-muted-foreground font-medium text-left p-3 border-b;
-  }
-
-  .table-lineage td {
-    @apply p-3 border-b border-border;
-  }
-
-  .table-lineage tr:hover {
-    @apply bg-muted/50;
   }
 
   /* Loading states */

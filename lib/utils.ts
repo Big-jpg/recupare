@@ -22,11 +22,6 @@ export function formatUserRole(role: string): string {
     .join(' ')
 }
 
-// Data lineage utilities
-export function generateLineageId(): string {
-  return `lineage_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-}
-
 export function formatTimestamp(timestamp: string | Date): string {
   const date = new Date(timestamp)
   return date.toLocaleString()
