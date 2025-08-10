@@ -7,11 +7,8 @@ const protectedRoutes = [
   "/settings",
   "/profile",
   "/admin",
-  "/api/lineage",
-  "/api/tables",
-  "/api/columns",
-  "/api/relationships",
-  "/api/transformations",
+  "/api/requests",
+  "/api/health"
 ];
 
 // Define admin-only routes
