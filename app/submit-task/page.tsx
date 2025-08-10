@@ -77,7 +77,6 @@ export default function SubmitTaskPage() {
   const [availableObjects, setAvailableObjects] = useState<ObjectOption[]>([]);
   const [loadingObjects, setLoadingObjects] = useState(false);
 
-  // Load prefilled data from sessionStorage on component mount
   useEffect(() => {
     const prefilledData = sessionStorage.getItem('prefilledTask');
     if (prefilledData) {
@@ -90,26 +89,20 @@ export default function SubmitTaskPage() {
         });
         setCharacterCount(parsed.instructions?.length || 0);
         setPrefilledContext(parsed.sourceContext || 'Document Workspace');
-
-        // Clear after loading
         sessionStorage.removeItem('prefilledTask');
-
         toast.success('Task details loaded from your selection!');
-      } catch (error) {
-        console.error('Error parsing prefilled task data:', error);
+      } catch {
         toast.error('Error loading task details');
       }
     }
   }, []);
 
-  // Fetch objects when bounded area changes
   useEffect(() => {
     if (formData.boundedArea) {
       fetchObjectsForArea(formData.boundedArea);
     } else {
       setAvailableObjects([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.boundedArea]);
 
   const fetchObjectsForArea = async (area: string) => {
@@ -121,13 +114,10 @@ export default function SubmitTaskPage() {
       if (data.error) throw new Error(data.error);
       const objs = data.objects || [];
       setAvailableObjects(objs);
-
-      // Clear target if it no longer exists in new list
       if (formData.targetObject && !objs.some(o => o.name === formData.targetObject)) {
         setFormData(prev => ({ ...prev, targetObject: '' }));
       }
     } catch {
-      // Graceful fallback to static defaults
       setAvailableObjects(FALLBACK_OBJECTS[area] || []);
     } finally {
       setLoadingObjects(false);
@@ -141,7 +131,6 @@ export default function SubmitTaskPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!formData.targetObject || !formData.boundedArea || !formData.instructions) {
       toast.error('Please fill in all required fields');
       return;
@@ -175,10 +164,7 @@ export default function SubmitTaskPage() {
       setPrefilledContext(null);
       setAvailableObjects([]);
 
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 1200);
+      setTimeout(() => { window.location.href = '/dashboard'; }, 1200);
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Unknown error occurred';
       toast.error(`Failed to submit task: ${msg}`);
@@ -189,17 +175,9 @@ export default function SubmitTaskPage() {
 
   const boundedAreaOptions = ['retrieval', 'parsing', 'translation', 'qa', 'export', 'indexing'];
 
-  const exampleInstructions = [
-    'Retrieve all invoices from March–May 2025 mentioning “PO-3*”, then summarize totals per supplier.',
-    'Parse the attached receipts (images) and extract date, total, GST, and merchant into a JSONL file.',
-    'Translate the uploaded contract (DOCX) from Italian to English, preserving headings and tables.',
-    'Run QA on extracted JSON vs. PDF totals; flag any variance > 0.5% with a brief note.',
-    'Export parsed shipment manifests into a single XLSX with normalized column names.',
-  ];
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Link href="/dashboard">
@@ -217,7 +195,6 @@ export default function SubmitTaskPage() {
         </div>
       </div>
 
-      {/* Prefilled Context Alert */}
       {prefilledContext && (
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="p-4">
@@ -226,16 +203,13 @@ export default function SubmitTaskPage() {
               <span className="text-blue-800 font-medium">
                 Task details loaded from {prefilledContext}
               </span>
-              <Badge variant="outline" className="bg-blue-100 text-blue-700">
-                Context-Aware
-              </Badge>
+              <Badge variant="outline" className="bg-blue-100 text-blue-700">Context-Aware</Badge>
             </div>
           </CardContent>
         </Card>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Form */}
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
@@ -249,7 +223,6 @@ export default function SubmitTaskPage() {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Bounded Area */}
                 <div>
                   <label htmlFor="boundedArea" className="block text-sm font-medium text-gray-700 mb-2">
                     Bounded Area *
@@ -273,7 +246,6 @@ export default function SubmitTaskPage() {
                   </p>
                 </div>
 
-                {/* Target Object */}
                 <div>
                   <label htmlFor="targetObject" className="block text-sm font-medium text-gray-700 mb-2">
                     Target Object *
@@ -302,21 +274,18 @@ export default function SubmitTaskPage() {
                       <option value="custom">Custom (specify in instructions)</option>
                     </select>
                     {loadingObjects && (
-                      <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
                         <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
                       </div>
                     )}
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
                     {formData.boundedArea
-                      ? `Showing ${availableObjects.length} suggestion${
-                          availableObjects.length === 1 ? '' : 's'
-                        } for “${formData.boundedArea}”.`
+                      ? `Showing ${availableObjects.length} suggestion${availableObjects.length === 1 ? '' : 's'} for “${formData.boundedArea}”.`
                       : 'Select a bounded area to see suggested objects'}
                   </p>
                 </div>
 
-                {/* Instructions */}
                 <div>
                   <label htmlFor="instructions" className="block text-sm font-medium text-gray-700 mb-2">
                     Task Instructions *
@@ -325,7 +294,7 @@ export default function SubmitTaskPage() {
                     id="instructions"
                     value={formData.instructions}
                     onChange={(e) => handleInputChange('instructions', e.target.value)}
-                    placeholder="Be explicit: source (folder/bucket), filters (date, terms), fields to extract, output format (JSONL/XLSX/CSV), and post‑steps (translate, QA, export)."
+                    placeholder="Be explicit: source (folder/bucket), filters (date, terms), fields to extract, output format (JSONL/XLSX/CSV), and post-steps (translate, QA, export)."
                     className="min-h-[120px] resize-none"
                     maxLength={500}
                     required
@@ -338,7 +307,6 @@ export default function SubmitTaskPage() {
                   </div>
                 </div>
 
-                {/* Submit */}
                 <Button type="submit" className="w-full" disabled={isSubmitting || characterCount < 10}>
                   {isSubmitting ? (
                     <>
@@ -357,9 +325,7 @@ export default function SubmitTaskPage() {
           </Card>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
-          {/* Available Objects */}
           {formData.boundedArea && (
             <Card>
               <CardHeader>
@@ -377,8 +343,7 @@ export default function SubmitTaskPage() {
                 ) : (
                   <div className="space-y-2">
                     <p className="text-sm text-gray-600">
-                      {availableObjects.length} suggestion{availableObjects.length === 1 ? '' : 's'} for{' '}
-                      {formData.boundedArea}
+                      {availableObjects.length} suggestion{availableObjects.length === 1 ? '' : 's'} for {formData.boundedArea}
                     </p>
                     {availableObjects.length > 0 && (
                       <div className="max-h-32 overflow-y-auto">
@@ -402,7 +367,6 @@ export default function SubmitTaskPage() {
             </Card>
           )}
 
-          {/* Example Instructions */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-yellow-800">
@@ -411,7 +375,13 @@ export default function SubmitTaskPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {exampleInstructions.map((ex, i) => (
+              {[
+                'Retrieve all invoices from March–May 2025 mentioning O-3*, then summarize totals per supplier.',
+                'Parse the attached receipts (images) and extract date, total, GST, and merchant into a JSONL file.',
+                'Translate the uploaded contract (DOCX) from Italian to English, preserving headings and tables.',
+                'Run QA on extracted JSON vs. PDF totals; flag any variance > 0.5% with a brief note.',
+                'Export parsed shipment manifests into a single XLSX with normalized column names.',
+              ].map((ex, i) => (
                 <div
                   key={i}
                   className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
@@ -423,7 +393,6 @@ export default function SubmitTaskPage() {
             </CardContent>
           </Card>
 
-          {/* Tips */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">Tips for Better Results</CardTitle>
@@ -433,7 +402,7 @@ export default function SubmitTaskPage() {
                 <li>• Specify source location (folder/bucket/collection) and file types.</li>
                 <li>• Add filters: date ranges, keywords, suppliers, languages.</li>
                 <li>• List the exact fields/tables to extract and expected schema.</li>
-                <li>• Declare output: JSONL/CSV/XLSX, and any post‑processing (translate, QA, export).</li>
+                <li>• Declare output: JSONL/CSV/XLSX, and any post-processing (translate, QA, export).</li>
                 <li>• Mention thresholds for QA (e.g., variance &gt; 0.5%).</li>
               </ul>
             </CardContent>
