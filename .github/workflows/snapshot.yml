@@ -7,7 +7,7 @@ jobs:
   call-snapshot:
     uses: Big-jpg/minima/.github/workflows/external-llm-snapshot.yml@main
     with:
-      target_repo: Big-jpg/swaptube       # <-- set to owner/repo of THIS repo
+      target_repo: Big-jpg/recupare       # <-- set to owner/repo of THIS repo
       ref: main                              # or ${{ github.ref_name }}
       redact: true
       maxFileMB: 5
