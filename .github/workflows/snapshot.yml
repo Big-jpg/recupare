@@ -5,7 +5,7 @@ on:
 
 jobs:
   call-snapshot:
-    uses: big-jpg/minima/.github/workflows/external-llm-snapshot.yml@main
+    uses: big-jpg/minima/.github/workflows/external-llm-snapshot.yml
     with:
       target_repo: Big-jpg/recupare       # <-- set to owner/repo of THIS repo
       ref: main                              # or ${{ github.ref_name }}
