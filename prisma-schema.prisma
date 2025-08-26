@@ -28,14 +28,49 @@ model User {
   requests    Request[]
   userPermissions Permission[]
   feedback    Feedback[]
+  documents   Document[]
   
   @@map("users")
+}
+
+// Areas of expertise model
+model Area {
+  id          String   @id @default(uuid())
+  name        String   @unique // e.g., 'HR', 'Contracts', 'Finance', 'Communications'
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  tasks       Task[]
+  
+  @@map("areas")
+}
+
+// Tasks within areas model
+model Task {
+  id          String   @id @default(uuid())
+  areaId      String
+  name        String   // e.g., 'Translation', 'Parsing', 'Analysis'
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  area        Area     @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  requests    Request[]
+  
+  @@map("tasks")
 }
 
 // Request model for task submissions
 model Request {
   id           String       @id @default(uuid())
   userId       String
+  areaId       String?
+  taskId       String?
   targetObject String       // e.g., 'sales_data', 'finance_data'
   boundedArea  String       // e.g., 'sales', 'finance', 'accounts'
   instructions String       // Natural language instructions
@@ -46,11 +81,52 @@ model Request {
   
   // Relations
   user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  area         Area?        @relation(fields: [areaId], references: [id])
+  task         Task?        @relation(fields: [taskId], references: [id])
   agentActions AgentAction[]
   feedback     Feedback[]
-  tasks        Task[]
+  taskQueue    TaskQueue[]
+  documents    RequestDocument[]
+  agentSessions AgentSession[]
   
   @@map("requests")
+}
+
+// Document storage model
+model Document {
+  id           String   @id @default(uuid())
+  userId       String
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  storePath    String   // Path where file is stored
+  metadata     String   @default("{}") // JSON string for file metadata
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requests     RequestDocument[]
+  
+  @@map("documents")
+}
+
+// Junction table for request-document relationships
+model RequestDocument {
+  id         String   @id @default(uuid())
+  requestId  String
+  documentId String
+  role       String   @default("input") // 'input', 'output', 'reference'
+  createdAt  DateTime @default(now())
+  
+  // Relations
+  request    Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  @@unique([requestId, documentId])
+  @@map("request_documents")
 }
 
 // Permission model for user data access
@@ -82,6 +158,39 @@ model AgentAction {
   @@map("agent_actions")
 }
 
+// Agent session model for conversation tracking
+model AgentSession {
+  id           String   @id @default(uuid())
+  requestId    String
+  agentId      String   // OpenAI agent ID
+  sessionData  String   @default("{}") // JSON string for session state
+  status       String   @default("active") // 'active', 'completed', 'failed'
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relations
+  request      Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  messages     AgentMessage[]
+  
+  @@map("agent_sessions")
+}
+
+// Agent message model for conversation history
+model AgentMessage {
+  id              String       @id @default(uuid())
+  agentSessionId  String
+  role            String       // 'user', 'agent', 'system'
+  content         String
+  messageType     String       @default("text") // 'text', 'file', 'action'
+  metadata        String       @default("{}")   // JSON string for message metadata
+  timestamp       DateTime     @default(now())
+  
+  // Relations
+  agentSession    AgentSession @relation(fields: [agentSessionId], references: [id], onDelete: Cascade)
+  
+  @@map("agent_messages")
+}
+
 // Feedback model for user feedback on agent outputs
 model Feedback {
   id           String   @id @default(uuid())
@@ -98,8 +207,8 @@ model Feedback {
   @@map("feedback")
 }
 
-// Task model for queueing system
-model Task {
+// Task queue model for queueing system
+model TaskQueue {
   id              String   @id @default(uuid())
   requestId       String
   status          String   @default("pending") // 'pending', 'processing', 'completed', 'failed'
@@ -111,6 +220,6 @@ model Task {
   // Relations
   request         Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
   
-  @@map("tasks")
+  @@map("task_queue")
 }
 

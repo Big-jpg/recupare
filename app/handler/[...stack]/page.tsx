@@ -1,6 +1,7 @@
+// app/handler/[...stack]/page.tsx
 import { StackHandler } from "@stackframe/stack";
-import { stackServerApp } from "../../../lib/stack";
+import { stackServerApp } from "@/lib/stack";
 
-export default function Handler(props: unknown) {
-  return <StackHandler fullPage app={stackServerApp} routeProps={props} />;
+export default function Handler(props: any) {
+  return <StackHandler fullPage app={stackServerApp} {...props} />;
 }

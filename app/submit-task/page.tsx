@@ -1,412 +1,503 @@
+// app/submit-task/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { toast } from 'sonner';
-import { ArrowLeft, Bot, Lightbulb, Send, Loader2, Database } from 'lucide-react';
-import Link from 'next/link';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { 
+  ArrowLeft, 
+  ArrowRight, 
+  CheckCircle, 
+  FileText, 
+  Brain,
+  Loader2,
+  AlertCircle
+} from 'lucide-react';
 
-interface TaskFormData {
-  targetObject: string;   // e.g., 'invoice_pdf', 'contract_docx'
-  boundedArea: string;    // e.g., 'retrieval', 'parsing'
-  instructions: string;
+interface Area {
+  id: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-interface PrefilledTaskData {
+interface Task {
+  id: string;
+  areaId: string;
+  areaName?: string;
+  name: string;
+  description: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface FormData {
+  areaId: string;
+  taskId: string;
   targetObject: string;
   boundedArea: string;
   instructions: string;
-  sourceContext?: string;
 }
 
-interface ObjectOption {
-  id?: number | string;
-  name: string;           // canonical identifier (e.g., 'invoice_pdf')
-  description?: string;
-  kind?: string;          // optional: 'pdf', 'image', 'email', etc.
-}
-
-interface ObjectsResponse {
-  objects: ObjectOption[];
-  error?: string;
-}
-
-const FALLBACK_OBJECTS: Record<string, ObjectOption[]> = {
-  retrieval: [
-    { name: 'invoice_pdf', description: 'Invoices (PDF)' },
-    { name: 'contract_docx', description: 'Contracts (DOCX)' },
-    { name: 'email_msg', description: 'Emails (.msg/.eml)' },
-    { name: 'policy_pdf', description: 'Policies & Manuals (PDF)' },
-  ],
-  parsing: [
-    { name: 'receipt_image', description: 'Receipts (images)' },
-    { name: 'form_scan', description: 'Scanned forms (PDF/Image)' },
-    { name: 'shipment_csv', description: 'Shipment manifests (CSV)' },
-  ],
-  translation: [
-    { name: 'brochure_pdf', description: 'Brochures (PDF)' },
-    { name: 'contract_docx', description: 'Contracts (DOCX)' },
-    { name: 'support_email', description: 'Support emails' },
-  ],
-  qa: [
-    { name: 'extracted_json', description: 'Extracted JSON bundles' },
-    { name: 'table_csv', description: 'Tables (CSV)' },
-  ],
-  export: [
-    { name: 'normalized_json', description: 'Normalized JSON' },
-    { name: 'xlsx_report', description: 'Excel report (XLSX)' },
-  ],
-  indexing: [
-    { name: 'raw_pdf', description: 'Raw PDFs' },
-    { name: 'ocr_text', description: 'OCR text chunks' },
-  ],
-};
+const steps = [
+  { id: 1, name: 'Select Area', description: 'Choose your area of expertise' },
+  { id: 2, name: 'Select Task', description: 'Pick the specific task type' },
+  { id: 3, name: 'Provide Details', description: 'Add instructions and context' },
+  { id: 4, name: 'Review & Submit', description: 'Confirm and submit your request' },
+];
 
 export default function SubmitTaskPage() {
-  const [formData, setFormData] = useState<TaskFormData>({
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState(1);
+  const [areas, setAreas] = useState<Area[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const [formData, setFormData] = useState<FormData>({
+    areaId: '',
+    taskId: '',
     targetObject: '',
     boundedArea: '',
     instructions: '',
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [characterCount, setCharacterCount] = useState(0);
-  const [prefilledContext, setPrefilledContext] = useState<string | null>(null);
-  const [availableObjects, setAvailableObjects] = useState<ObjectOption[]>([]);
-  const [loadingObjects, setLoadingObjects] = useState(false);
 
+  // Fetch areas on component mount
   useEffect(() => {
-    const prefilledData = sessionStorage.getItem('prefilledTask');
-    if (prefilledData) {
-      try {
-        const parsed: PrefilledTaskData = JSON.parse(prefilledData);
-        setFormData({
-          targetObject: parsed.targetObject || '',
-          boundedArea: parsed.boundedArea || '',
-          instructions: parsed.instructions || '',
-        });
-        setCharacterCount(parsed.instructions?.length || 0);
-        setPrefilledContext(parsed.sourceContext || 'Document Workspace');
-        sessionStorage.removeItem('prefilledTask');
-        toast.success('Task details loaded from your selection!');
-      } catch {
-        toast.error('Error loading task details');
-      }
-    }
+    fetchAreas();
   }, []);
 
+  // Fetch tasks when area is selected
   useEffect(() => {
-    if (formData.boundedArea) {
-      fetchObjectsForArea(formData.boundedArea);
-    } else {
-      setAvailableObjects([]);
+    if (formData.areaId) {
+      fetchTasks(formData.areaId);
     }
-  }, [formData.boundedArea]);
+  }, [formData.areaId]);
 
-  const fetchObjectsForArea = async (area: string) => {
-    setLoadingObjects(true);
+  const fetchAreas = async () => {
+    setLoading(true);
     try {
-      const res = await fetch(`/api/docs/objects?area=${encodeURIComponent(area)}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
-      const data: ObjectsResponse = await res.json();
-      if (data.error) throw new Error(data.error);
-      const objs = data.objects || [];
-      setAvailableObjects(objs);
-      if (formData.targetObject && !objs.some(o => o.name === formData.targetObject)) {
-        setFormData(prev => ({ ...prev, targetObject: '' }));
+      const response = await fetch('/api/areas');
+      const data = await response.json();
+      
+      if (data.success) {
+        setAreas(data.areas);
+      } else {
+        setError('Failed to load areas');
       }
-    } catch {
-      setAvailableObjects(FALLBACK_OBJECTS[area] || []);
+    } catch (err) {
+      setError('Failed to load areas');
+      console.error('Error fetching areas:', err);
     } finally {
-      setLoadingObjects(false);
+      setLoading(false);
     }
   };
 
-  const handleInputChange = (field: keyof TaskFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (field === 'instructions') setCharacterCount(value.length);
+  const fetchTasks = async (areaId: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/tasks?areaId=${areaId}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setTasks(data.tasks);
+      } else {
+        setError('Failed to load tasks');
+      }
+    } catch (err) {
+      setError('Failed to load tasks');
+      console.error('Error fetching tasks:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.targetObject || !formData.boundedArea || !formData.instructions) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-    if (formData.instructions.length < 10) {
-      toast.error('Please provide more detailed instructions (at least 10 characters)');
-      return;
-    }
+  const handleAreaSelect = (areaId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      areaId,
+      taskId: '', // Reset task when area changes
+    }));
+  };
 
-    setIsSubmitting(true);
+  const handleTaskSelect = (taskId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      taskId,
+    }));
+  };
+
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const canProceedToNextStep = () => {
+    switch (currentStep) {
+      case 1:
+        return formData.areaId !== '';
+      case 2:
+        return formData.taskId !== '';
+      case 3:
+        return formData.targetObject.trim() !== '' && 
+               formData.boundedArea.trim() !== '' && 
+               formData.instructions.trim().length >= 10;
+      case 4:
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const handleNext = () => {
+    if (canProceedToNextStep() && currentStep < 4) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    setError(null);
+
     try {
       const response = await fetch('/api/requests', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          target_object: formData.targetObject,
-          bounded_area: formData.boundedArea, // retrieval | parsing | translation | qa | export | indexing
-          instructions: formData.instructions,
-          source_context: prefilledContext || 'manual_submission',
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to submit task');
+      const data = await response.json();
+
+      if (data.success) {
+        // Redirect to dashboard with success message
+        router.push('/dashboard?submitted=true');
+      } else {
+        setError(data.error || 'Failed to submit request');
       }
-
-      toast.success('AI Document task submitted successfully!');
-      setFormData({ targetObject: '', boundedArea: '', instructions: '' });
-      setCharacterCount(0);
-      setPrefilledContext(null);
-      setAvailableObjects([]);
-
-      setTimeout(() => { window.location.href = '/dashboard'; }, 1200);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : 'Unknown error occurred';
-      toast.error(`Failed to submit task: ${msg}`);
+    } catch (err) {
+      setError('Failed to submit request');
+      console.error('Error submitting request:', err);
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
   };
 
-  const boundedAreaOptions = ['retrieval', 'parsing', 'translation', 'qa', 'export', 'indexing'];
-
+  const selectedArea = areas.find(area => area.id === formData.areaId);
+  const selectedTask = tasks.find(task => task.id === formData.taskId);
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Link href="/dashboard">
-            <Button variant="outline" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Submit Document Task</h1>
-            <p className="text-gray-600 mt-1">
-              Describe what the agent should do — retrieve, parse (OCR), translate, QA, or export.
-            </p>
+    <div className="min-h-screen bg-background">
+      <div className="max-w-4xl mx-auto p-6">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Submit New Task</h1>
+          <p className="text-gray-600">
+            Create a new document processing task for our AI agents
+          </p>
+        </div>
+
+        {/* Progress Steps */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            {steps.map((step, index) => (
+              <div key={step.id} className="flex items-center">
+                <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 ${
+                  currentStep >= step.id 
+                    ? 'bg-blue-600 border-blue-600 text-white' 
+                    : 'border-gray-300 text-gray-500'
+                }`}>
+                  {currentStep > step.id ? (
+                    <CheckCircle className="w-5 h-5" />
+                  ) : (
+                    <span className="text-sm font-medium">{step.id}</span>
+                  )}
+                </div>
+                <div className="ml-3 hidden sm:block">
+                  <p className={`text-sm font-medium ${
+                    currentStep >= step.id ? 'text-blue-600' : 'text-gray-500'
+                  }`}>
+                    {step.name}
+                  </p>
+                  <p className="text-xs text-gray-500">{step.description}</p>
+                </div>
+                {index < steps.length - 1 && (
+                  <div className={`w-12 h-0.5 ml-4 ${
+                    currentStep > step.id ? 'bg-blue-600' : 'bg-gray-300'
+                  }`} />
+                )}
+              </div>
+            ))}
           </div>
         </div>
-      </div>
 
-      {prefilledContext && (
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Bot className="w-5 h-5 text-blue-600" />
-              <span className="text-blue-800 font-medium">
-                Task details loaded from {prefilledContext}
-              </span>
-              <Badge variant="outline" className="bg-blue-100 text-blue-700">Context-Aware</Badge>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bot className="w-5 h-5" />
-                Task Configuration
-              </CardTitle>
-              <CardDescription>
-                Configure your agentic document task with a bounded area and target object
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="boundedArea" className="block text-sm font-medium text-gray-700 mb-2">
-                    Bounded Area *
-                  </label>
-                  <select
-                    id="boundedArea"
-                    value={formData.boundedArea}
-                    onChange={(e) => handleInputChange('boundedArea', e.target.value)}
-                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    required
-                  >
-                    <option value="">Select an area…</option>
-                    {boundedAreaOptions.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt.charAt(0).toUpperCase() + opt.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Choose the workflow scope so we can suggest relevant document types.
-                  </p>
-                </div>
-
-                <div>
-                  <label htmlFor="targetObject" className="block text-sm font-medium text-gray-700 mb-2">
-                    Target Object *
-                  </label>
-                  <div className="relative">
-                    <select
-                      id="targetObject"
-                      value={formData.targetObject}
-                      onChange={(e) => handleInputChange('targetObject', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      required
-                      disabled={!formData.boundedArea || loadingObjects}
-                    >
-                      <option value="">
-                        {!formData.boundedArea
-                          ? 'Select a bounded area first…'
-                          : loadingObjects
-                          ? 'Loading objects…'
-                          : 'Select a target object…'}
-                      </option>
-                      {availableObjects.map((obj) => (
-                        <option key={obj.name} value={obj.name}>
-                          {obj.description ? `${obj.description}` : obj.name}
-                        </option>
-                      ))}
-                      <option value="custom">Custom (specify in instructions)</option>
-                    </select>
-                    {loadingObjects && (
-                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formData.boundedArea
-                      ? `Showing ${availableObjects.length} suggestion${availableObjects.length === 1 ? '' : 's'} for “${formData.boundedArea}”.`
-                      : 'Select a bounded area to see suggested objects'}
-                  </p>
-                </div>
-
-                <div>
-                  <label htmlFor="instructions" className="block text-sm font-medium text-gray-700 mb-2">
-                    Task Instructions *
-                  </label>
-                  <Textarea
-                    id="instructions"
-                    value={formData.instructions}
-                    onChange={(e) => handleInputChange('instructions', e.target.value)}
-                    placeholder="Be explicit: source (folder/bucket), filters (date, terms), fields to extract, output format (JSONL/XLSX/CSV), and post-steps (translate, QA, export)."
-                    className="min-h-[120px] resize-none"
-                    maxLength={500}
-                    required
-                  />
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="text-sm text-gray-500">{characterCount}/500 characters</span>
-                    <span className="text-sm text-gray-500">
-                      {characterCount < 10 ? 'Minimum 10 characters required' : 'Good length'}
-                    </span>
-                  </div>
-                </div>
-
-                <Button type="submit" className="w-full" disabled={isSubmitting || characterCount < 10}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Submitting Task…
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Submit Document Task
-                    </>
-                  )}
-                </Button>
-              </form>
+        {/* Error Display */}
+        {error && (
+          <Card className="mb-6 border-red-200 bg-red-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center">
+                <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
+                <span className="text-red-800">{error}</span>
+              </div>
             </CardContent>
           </Card>
-        </div>
+        )}
 
-        <div className="space-y-6">
-          {formData.boundedArea && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-blue-800">
-                  <Database className="w-5 h-5" />
-                  Suggested Targets
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loadingObjects ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm text-gray-600">Loading…</span>
+        {/* Step Content */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>{steps[currentStep - 1].name}</CardTitle>
+            <CardDescription>{steps[currentStep - 1].description}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Step 1: Select Area */}
+            {currentStep === 1 && (
+              <div className="space-y-4">
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                    <span>Loading areas...</span>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    <p className="text-sm text-gray-600">
-                      {availableObjects.length} suggestion{availableObjects.length === 1 ? '' : 's'} for {formData.boundedArea}
-                    </p>
-                    {availableObjects.length > 0 && (
-                      <div className="max-h-32 overflow-y-auto">
-                        <div className="space-y-1">
-                          {availableObjects.slice(0, 6).map((obj) => (
-                            <div key={obj.name} className="text-xs text-gray-500">
-                              • {obj.description || obj.name}
-                            </div>
-                          ))}
-                          {availableObjects.length > 6 && (
-                            <div className="text-xs text-gray-400">
-                              …and {availableObjects.length - 6} more
-                            </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {areas.map((area) => (
+                      <div
+                        key={area.id}
+                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                          formData.areaId === area.id
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        }`}
+                        onClick={() => handleAreaSelect(area.id)}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-medium text-gray-900">{area.name}</h3>
+                          {formData.areaId === area.id && (
+                            <CheckCircle className="w-5 h-5 text-blue-600" />
                           )}
                         </div>
+                        {area.description && (
+                          <p className="text-sm text-gray-600">{area.description}</p>
+                        )}
                       </div>
-                    )}
+                    ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-yellow-800">
-                <Lightbulb className="w-5 h-5" />
-                Example Instructions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                'Retrieve all invoices from March–May 2025 mentioning O-3*, then summarize totals per supplier.',
-                'Parse the attached receipts (images) and extract date, total, GST, and merchant into a JSONL file.',
-                'Translate the uploaded contract (DOCX) from Italian to English, preserving headings and tables.',
-                'Run QA on extracted JSON vs. PDF totals; flag any variance > 0.5% with a brief note.',
-                'Export parsed shipment manifests into a single XLSX with normalized column names.',
-              ].map((ex, i) => (
-                <div
-                  key={i}
-                  className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => handleInputChange('instructions', ex)}
-                >
-                  <p className="text-sm text-gray-700">{ex}</p>
+            {/* Step 2: Select Task */}
+            {currentStep === 2 && (
+              <div className="space-y-4">
+                {selectedArea && (
+                  <div className="mb-4">
+                    <Badge variant="secondary" className="mb-2">
+                      Selected Area: {selectedArea.name}
+                    </Badge>
+                  </div>
+                )}
+                
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                    <span>Loading tasks...</span>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-3">
+                    {tasks.map((task) => (
+                      <div
+                        key={task.id}
+                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                          formData.taskId === task.id
+                            ? 'border-blue-500 bg-blue-50'
+                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        }`}
+                        onClick={() => handleTaskSelect(task.id)}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="font-medium text-gray-900">{task.name}</h3>
+                          {formData.taskId === task.id && (
+                            <CheckCircle className="w-5 h-5 text-blue-600" />
+                          )}
+                        </div>
+                        {task.description && (
+                          <p className="text-sm text-gray-600">{task.description}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Step 3: Provide Details */}
+            {currentStep === 3 && (
+              <div className="space-y-6">
+                {selectedArea && selectedTask && (
+                  <div className="mb-4 space-y-2">
+                    <Badge variant="secondary">
+                      Area: {selectedArea.name}
+                    </Badge>
+                    <Badge variant="secondary">
+                      Task: {selectedTask.name}
+                    </Badge>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Target Object *
+                    </label>
+                    <Input
+                      placeholder="e.g., contract_documents, employee_handbook, financial_reports"
+                      value={formData.targetObject}
+                      onChange={(e) => handleInputChange('targetObject', e.target.value)}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Specify the type of document or data you want to process
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Bounded Area *
+                    </label>
+                    <Input
+                      placeholder="e.g., legal, hr, finance, operations"
+                      value={formData.boundedArea}
+                      onChange={(e) => handleInputChange('boundedArea', e.target.value)}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Define the scope or domain for this task
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Instructions *
+                    </label>
+                    <Textarea
+                      placeholder="Provide detailed instructions for the AI agent. Include specific requirements, expected output format, and any special considerations..."
+                      value={formData.instructions}
+                      onChange={(e) => handleInputChange('instructions', e.target.value)}
+                      rows={6}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Minimum 10 characters. Be as specific as possible for best results.
+                    </p>
+                  </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
+              </div>
+            )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm font-medium">Tips for Better Results</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li>• Specify source location (folder/bucket/collection) and file types.</li>
-                <li>• Add filters: date ranges, keywords, suppliers, languages.</li>
-                <li>• List the exact fields/tables to extract and expected schema.</li>
-                <li>• Declare output: JSONL/CSV/XLSX, and any post-processing (translate, QA, export).</li>
-                <li>• Mention thresholds for QA (e.g., variance &gt; 0.5%).</li>
-              </ul>
-            </CardContent>
-          </Card>
+            {/* Step 4: Review & Submit */}
+            {currentStep === 4 && (
+              <div className="space-y-6">
+                <div className="bg-gray-50 p-6 rounded-lg">
+                  <h3 className="font-medium text-gray-900 mb-4">Review Your Request</h3>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Area:</span>
+                      <p className="text-gray-900">{selectedArea?.name}</p>
+                    </div>
+                    
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Task:</span>
+                      <p className="text-gray-900">{selectedTask?.name}</p>
+                    </div>
+                    
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Target Object:</span>
+                      <p className="text-gray-900">{formData.targetObject}</p>
+                    </div>
+                    
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Bounded Area:</span>
+                      <p className="text-gray-900">{formData.boundedArea}</p>
+                    </div>
+                    
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Instructions:</span>
+                      <p className="text-gray-900 whitespace-pre-wrap">{formData.instructions}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-start">
+                    <Brain className="w-5 h-5 text-blue-600 mr-2 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-blue-900">What happens next?</h4>
+                      <p className="text-sm text-blue-700 mt-1">
+                        Your request will be assigned to a specialized AI agent that will process 
+                        your task according to your instructions. You'll be able to track progress 
+                        and communicate with the agent through your dashboard.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between">
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentStep === 1}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Previous
+          </Button>
+
+          {currentStep < 4 ? (
+            <Button
+              onClick={handleNext}
+              disabled={!canProceedToNextStep() || loading}
+            >
+              Next
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+          ) : (
+            <Button
+              onClick={handleSubmit}
+              disabled={submitting}
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Submit Task
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </div>

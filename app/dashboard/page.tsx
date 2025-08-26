@@ -1,16 +1,30 @@
 // app/dashboard/page.tsx
-
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Plus, Clock, CheckCircle, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Plus, 
+  Clock, 
+  CheckCircle, 
+  XCircle, 
+  AlertCircle, 
+  RefreshCw,
+  FileText,
+  Brain,
+  TrendingUp,
+  Activity
+} from 'lucide-react';
 
 interface Request {
   id: string;
+  areaId: string | null;
+  areaName: string | null;
+  taskId: string | null;
+  taskName: string | null;
   targetObject: string;
   boundedArea: string;
   instructions: string;
@@ -25,7 +39,7 @@ interface Request {
 }
 
 interface RequestsResponse {
-  error: string;
+  error?: string;
   success: boolean;
   requests: Request[];
   count: number;
@@ -59,23 +73,6 @@ const statusConfig = {
   },
 };
 
-const targetObjectLabels: Record<string, string> = {
-  sales_data: 'Sales Data',
-  finance_data: 'Finance Data',
-  customer_data: 'Customer Data',
-  inventory_data: 'Inventory Data',
-  hr_data: 'HR Data',
-};
-
-const boundedAreaLabels: Record<string, string> = {
-  sales: 'Sales',
-  finance: 'Finance',
-  marketing: 'Marketing',
-  operations: 'Operations',
-  hr: 'Human Resources',
-  executive: 'Executive',
-};
-
 export default function EnhancedDashboard() {
   const [requests, setRequests] = useState<Request[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,6 +103,13 @@ export default function EnhancedDashboard() {
 
   useEffect(() => {
     fetchRequests();
+    
+    // Set up polling for real-time updates
+    const interval = setInterval(() => {
+      fetchRequests();
+    }, 30000); // Poll every 30 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   const formatDate = (dateString: string) => {
@@ -130,6 +134,15 @@ export default function EnhancedDashboard() {
     );
   };
 
+  // Calculate statistics
+  const stats = {
+    total: requests.length,
+    pending: requests.filter(r => r.status === 'pending').length,
+    processing: requests.filter(r => r.status === 'processing').length,
+    completed: requests.filter(r => r.status === 'completed').length,
+    failed: requests.filter(r => r.status === 'failed').length,
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -137,9 +150,14 @@ export default function EnhancedDashboard() {
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
             <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-32 bg-gray-200 rounded-lg"></div>
+              ))}
+            </div>
             <div className="space-y-4">
               {[1, 2, 3].map(i => (
-                <div key={i} className="h-32 bg-gray-200 rounded"></div>
+                <div key={i} className="h-24 bg-gray-200 rounded-lg"></div>
               ))}
             </div>
           </div>
@@ -152,14 +170,14 @@ export default function EnhancedDashboard() {
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto p-6">
         {/* Header */}
-        <div className="flex justify-between items-start mb-8">
+        <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">AI Agent Dashboard</h1>
-            <p className="text-gray-600 mt-2">
-              Monitor your submitted tasks and their processing status
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-gray-600 mt-1">
+              Monitor and manage your agentic document processing tasks
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex items-center space-x-4">
             <Button
               variant="outline"
               onClick={() => fetchRequests(true)}
@@ -168,146 +186,169 @@ export default function EnhancedDashboard() {
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
-            <Link href="/submit-task">
-              <Button>
+            <Button asChild>
+              <Link href="/submit-task">
                 <Plus className="w-4 h-4 mr-2" />
-                Submit New Task
-              </Button>
-            </Link>
+                New Task
+              </Link>
+            </Button>
           </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Clock className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Requests</p>
-                <p className="text-2xl font-bold text-gray-900">{requests.length}</p>
-              </div>
-            </div>
-          </Card>
-          
-          <Card className="p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <Clock className="w-6 h-6 text-yellow-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {requests.filter(r => r.status === 'pending').length}
-                </p>
-              </div>
-            </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.total}</div>
+              <p className="text-xs text-muted-foreground">
+                All time submissions
+              </p>
+            </CardContent>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <RefreshCw className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Processing</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {requests.filter(r => r.status === 'processing').length}
-                </p>
-              </div>
-            </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">In Queue</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.pending}</div>
+              <p className="text-xs text-muted-foreground">
+                Waiting for processing
+              </p>
+            </CardContent>
           </Card>
 
-          <Card className="p-6">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Completed</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {requests.filter(r => r.status === 'completed').length}
-                </p>
-              </div>
-            </div>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Processing</CardTitle>
+              <Brain className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.processing}</div>
+              <p className="text-xs text-muted-foreground">
+                Active agent tasks
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Completed</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.completed}</div>
+              <p className="text-xs text-muted-foreground">
+                Successfully processed
+              </p>
+            </CardContent>
           </Card>
         </div>
 
         {/* Error State */}
         {error && (
-          <Card className="p-6 mb-8 border-red-200 bg-red-50">
-            <div className="flex items-center">
-              <XCircle className="w-5 h-5 text-red-600 mr-2" />
-              <p className="text-red-800">{error}</p>
-            </div>
+          <Card className="mb-6 border-red-200 bg-red-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center">
+                <XCircle className="w-5 h-5 text-red-600 mr-2" />
+                <span className="text-red-800">{error}</span>
+              </div>
+            </CardContent>
           </Card>
         )}
 
-        {/* Requests List */}
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-gray-900">Recent Requests</h2>
-          
-          {requests.length === 0 ? (
-            <Card className="p-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Plus className="w-8 h-8 text-gray-400" />
+        {/* Recent Tasks */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center">
+                  <Activity className="w-5 h-5 mr-2" />
+                  Recent Tasks
+                </CardTitle>
+                <CardDescription>
+                  Your latest document processing requests
+                </CardDescription>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No requests yet</h3>
-              <p className="text-gray-600 mb-6">
-                Submit your first AI agent task to get started with automated data analysis.
-              </p>
-              <Link href="/submit-task">
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Submit Your First Task
+              {requests.length > 0 && (
+                <Badge variant="secondary">
+                  {requests.length} task{requests.length !== 1 ? 's' : ''}
+                </Badge>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {requests.length === 0 ? (
+              <div className="text-center py-12">
+                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  No tasks yet
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Get started by submitting your first document processing task
+                </p>
+                <Button asChild>
+                  <Link href="/submit-task">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Submit First Task
+                  </Link>
                 </Button>
-              </Link>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {requests.map((request) => (
-                <Card key={request.id} className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          {targetObjectLabels[request.targetObject] || request.targetObject}
-                        </h3>
-                        <Badge variant="secondary">
-                          {boundedAreaLabels[request.boundedArea] || request.boundedArea}
-                        </Badge>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {requests.map((request) => (
+                  <div
+                    key={request.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-3 mb-2">
+                        <h4 className="font-medium text-gray-900 truncate">
+                          {request.areaName && request.taskName
+                            ? `${request.areaName} - ${request.taskName}`
+                            : `${request.boundedArea} - ${request.targetObject}`
+                          }
+                        </h4>
                         {getStatusBadge(request.status)}
                       </div>
-                      <p className="text-gray-600 mb-3 line-clamp-2">
+                      <p className="text-sm text-gray-600 truncate mb-2">
                         {request.instructions}
                       </p>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <span>Submitted {formatDate(request.createdAt)}</span>
+                      <div className="flex items-center text-xs text-gray-500 space-x-4">
+                        <span>Created: {formatDate(request.createdAt)}</span>
                         {request.updatedAt !== request.createdAt && (
-                          <span className="ml-4">
-                            Updated {formatDate(request.updatedAt)}
-                          </span>
+                          <span>Updated: {formatDate(request.updatedAt)}</span>
                         )}
                       </div>
                     </div>
-                  </div>
-
-                  {/* Result Preview */}
-                  {request.result && (
-                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                      <h4 className="text-sm font-medium text-gray-900 mb-2">Result Preview</h4>
-                      <pre className="text-sm text-gray-600 whitespace-pre-wrap">
-                        {JSON.stringify(request.result, null, 2).substring(0, 200)}
-                        {JSON.stringify(request.result, null, 2).length > 200 && '...'}
-                      </pre>
+                    <div className="flex items-center space-x-2 ml-4">
+                      {request.status === 'processing' && (
+                        <Button variant="outline" size="sm">
+                          View Progress
+                        </Button>
+                      )}
+                      {request.status === 'completed' && (
+                        <Button variant="outline" size="sm">
+                          View Results
+                        </Button>
+                      )}
+                      {request.status === 'failed' && (
+                        <Button variant="outline" size="sm">
+                          Retry
+                        </Button>
+                      )}
                     </div>
-                  )}
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

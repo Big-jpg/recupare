@@ -1,14 +1,20 @@
+// middleware.ts
 import { NextRequest, NextResponse } from "next/server";
 import { stackServerApp } from "./lib/stack";
 
 // Define protected routes that require authentication
 const protectedRoutes = [
   "/dashboard",
+  "/submit-task",
   "/settings",
   "/profile",
   "/admin",
   "/api/requests",
-  "/api/health"
+  "/api/areas",
+  "/api/tasks",
+  "/api/documents",
+  "/api/agents",
+  "/api/agent-sessions"
 ];
 
 // Define admin-only routes
@@ -24,6 +30,7 @@ const publicRoutes = [
   "/contact",
   "/handler",
   "/auth",
+  "/api/health"
 ];
 
 export async function middleware(request: NextRequest) {
@@ -61,7 +68,8 @@ export async function middleware(request: NextRequest) {
 
     // Check admin routes
     if (adminRoutes.some(route => pathname.startsWith(route))) {
-      if (!user.hasPermission("admin")) {
+      const hasAdminPermission = await user.hasPermission("admin");
+      if (!hasAdminPermission) {
         // User doesn't have admin permissions
         return new NextResponse("Access Denied", { status: 403 });
       }
@@ -91,4 +99,3 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|public/).*)",
   ],
 };
-
