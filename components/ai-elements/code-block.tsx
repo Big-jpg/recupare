@@ -1,3 +1,4 @@
+// /components/ai-elements/code-block.tsx
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -66,6 +67,7 @@ export const CodeBlock = ({
         >
           {code}
         </SyntaxHighlighter>
+
         <SyntaxHighlighter
           className="hidden overflow-hidden dark:block"
           codeTagProps={{
@@ -89,6 +91,7 @@ export const CodeBlock = ({
         >
           {code}
         </SyntaxHighlighter>
+
         {children && (
           <div className="absolute top-2 right-2 flex items-center gap-2">
             {children}
