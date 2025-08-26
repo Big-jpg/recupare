@@ -5,7 +5,7 @@ on:
 
 jobs:
   call-snapshot:
-    uses: Big-jpg/minima/.github/workflows/run-snapshot-anywhere.yml@main  # ← add @ref and correct file name
+    uses: Big-jpg/minima/.github/workflows/external-llm-snapshot.yml@main  # ← add @ref and correct file name
     with:
       target_repo: Big-jpg/recupare
       ref: ${{ github.ref_name }}     # or "main", but this tracks the dispatched ref
