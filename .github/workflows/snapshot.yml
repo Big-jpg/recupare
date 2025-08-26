@@ -1,19 +1,18 @@
 name: Snapshot My Repo
 
 on:
-  workflow_dispatch:   
+  workflow_dispatch:
 
 jobs:
   call-snapshot:
-    uses: big-jpg/minima/.github/workflows/external-llm-snapshot.yml
+    uses: Big-jpg/minima/.github/workflows/run-snapshot-anywhere.yml@main  # ← add @ref and correct file name
     with:
-      target_repo: Big-jpg/recupare       # <-- set to owner/repo of THIS repo
-      ref: main                              # or ${{ github.ref_name }}
+      target_repo: Big-jpg/recupare
+      ref: ${{ github.ref_name }}     # or "main", but this tracks the dispatched ref
       redact: true
       maxFileMB: 5
-      include: ""                            # optional: "^src/,^CMakeLists\.txt$"
-      exclude: ""                            # optional: "^docs/,^media/"
-    # For private repos: define a repo/org secret SNAPSHOT_TOKEN (fine-grained PAT: Contents Read)
-    # and pass it through. For public repos, you can remove the entire 'secrets' block.
-    # secrets:
-    #   SNAPSHOT_TOKEN: ${{ secrets.SNAPSHOT_TOKEN }}
+      include: ""                     # e.g., "^src/,^CMakeLists\.txt$"
+      exclude: ""                     # e.g., "^docs/,^media/"
+    # Forward secrets to the called workflow if needed (e.g., private targets):
+    secrets:
+      SNAPSHOT_TOKEN: ${{ secrets.SNAPSHOT_TOKEN }}
