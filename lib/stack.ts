@@ -10,7 +10,7 @@ export async function getCurrentUser() {
   try {
     const user = await stackServerApp.getUser();
     return user;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

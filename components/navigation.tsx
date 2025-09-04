@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { useUser } from '@stackframe/stack';
 import { Button } from '@/components/ui/button';
-import { FileText, BarChart3, Plus, User, LogOut } from 'lucide-react';
+import { BarChart3, Plus, User, LogOut } from 'lucide-react';
 
 export default function Navigation() {
   const user = useUser();

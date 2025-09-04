@@ -115,7 +115,7 @@ export async function getAgenticRequestsByUserId(userId: string) {
 export async function updateAgenticRequestStatus(
   requestId: string,
   status: string,
-  result?: any
+  result?: unknown
 ) {
   const updateResult = await sql`
     UPDATE agentic_requests 
