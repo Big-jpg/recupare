@@ -1,5 +1,6 @@
 // app/dashboard/page.tsx
 'use client';
+export const dynamic = "force-dynamic";
 
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
