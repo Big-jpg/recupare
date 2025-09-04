@@ -1,94 +1,36 @@
-import { NextRequest, NextResponse } from "next/server";
-import { stackServerApp } from "./lib/stack";
-
-// Define protected routes that require authentication
-const protectedRoutes = [
-  "/dashboard",
-  "/settings",
-  "/profile",
-  "/admin",
-  "/api/requests",
-  "/api/health"
-];
-
-// Define admin-only routes
-const adminRoutes = [
-  "/admin",
-  "/api/admin",
-];
-
-// Define public routes that should be accessible without authentication
-const publicRoutes = [
-  "/",
-  "/about",
-  "/contact",
-  "/handler",
-  "/auth",
-];
+// middleware.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { stackServerApp } from '@/lib/stack';
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  // Allow Stack Auth handler routes
-  if (pathname.startsWith("/handler/")) {
-    return NextResponse.next();
-  }
-
-  // Allow public routes
-  if (publicRoutes.some(route => pathname.startsWith(route))) {
-    return NextResponse.next();
-  }
-
-  // Check if the route requires authentication
-  const isProtectedRoute = protectedRoutes.some(route => 
-    pathname.startsWith(route)
-  );
-
-  if (!isProtectedRoute) {
-    return NextResponse.next();
-  }
-
-  try {
-    // Get the user from Stack Auth
-    const user = await stackServerApp.getUser();
-
-    if (!user) {
-      // User is not authenticated, redirect to sign in
-      const signInUrl = new URL("/handler/signin", request.url);
-      signInUrl.searchParams.set("after_auth_return_to", pathname);
+  // Protect dashboard and invoice routes
+  if (request.nextUrl.pathname.startsWith('/dashboard') || 
+      request.nextUrl.pathname.startsWith('/invoice/card')) {
+    try {
+      const user = await stackServerApp.getUser();
+      if (!user) {
+        // Redirect to sign-in if not authenticated
+        const signInUrl = new URL('/auth/signin', request.url);
+        signInUrl.searchParams.set('redirect', request.nextUrl.pathname);
+        return NextResponse.redirect(signInUrl);
+      }
+    } catch (error) {
+      // Redirect to sign-in on auth error
+      const signInUrl = new URL('/auth/signin', request.url);
+      signInUrl.searchParams.set('redirect', request.nextUrl.pathname);
       return NextResponse.redirect(signInUrl);
     }
-
-    // Check admin routes
-    if (adminRoutes.some(route => pathname.startsWith(route))) {
-      if (!user.hasPermission("admin")) {
-        // User doesn't have admin permissions
-        return new NextResponse("Access Denied", { status: 403 });
-      }
-    }
-
-    // User is authenticated and has required permissions
-    return NextResponse.next();
-  } catch (error) {
-    console.error("Middleware authentication error:", error);
-    
-    // On error, redirect to sign in
-    const signInUrl = new URL("/handler/signin", request.url);
-    signInUrl.searchParams.set("after_auth_return_to", pathname);
-    return NextResponse.redirect(signInUrl);
   }
+
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    "/((?!_next/static|_next/image|favicon.ico|public/).*)",
-  ],
+    '/dashboard/:path*',
+    '/invoice/card/:path*',
+    '/api/upload',
+    '/api/invoice/:path*'
+  ]
 };
 

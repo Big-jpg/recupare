@@ -1,3 +1,4 @@
+// app/layout.tsx
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -5,6 +6,7 @@ import { Analytics } from '@vercel/analytics/next';
 import { StackProvider, StackTheme } from '@stackframe/stack'; 
 import Navigation from '@/components/navigation';
 import { stackServerApp } from '@/lib/stack';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,7 +32,9 @@ export const metadata: Metadata = {
     'chunking',
     'embeddings',
     'vector search',
-    'workflow automation'
+    'workflow automation',
+    'invoice processing',
+    'azure content understanding'
   ],
 
   // Author and creator information
@@ -54,16 +58,16 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://on-prem-to-cloud-data-lineage.vercel.app', // keep domain for now
+    url: 'https://recupare-invoicepipe.vercel.app',
     siteName: 'Agentic Document Intelligence',
     title: 'Agentic AI for Retrieval, Parsing, and Translation',
     description:
       'Upload documents, extract fields, translate, and automate review with AI agents. Built for reliability and scale.',
 
-    // OG Image configuration (reuse existing file path for now)
+    // OG Image configuration
     images: [
       {
-        url: '/public/og-image-doc-intel.svg',
+        url: '/og-image-doc-intel.svg',
         width: 1200,
         height: 630,
         alt: 'Agentic Document Intelligence',
@@ -135,8 +139,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebApplication",
               "name": "Agentic Document Intelligence",
-              "description": "Agentic AI platform for document retrieval, parsing, OCR, and multilingual translation with end-to-end workflow automation.",
-              "url": "https://on-prem-to-cloud-data-lineage.vercel.app/",
+              "description": "Agentic AI platform for document retrieval, parsing, OCR, invoice processing, and multilingual translation with end-to-end workflow automation.",
+              "url": "https://recupare-invoicepipe.vercel.app/",
               "applicationCategory": "BusinessApplication",
               "operatingSystem": "Web Browser",
               "creator": {
@@ -146,6 +150,7 @@ export default function RootLayout({
               "featureList": [
                 "Document retrieval with vector search (RAG)",
                 "OCR and table extraction from PDFs and images",
+                "Invoice processing with Azure Content Understanding",
                 "Schema-mapped field extraction",
                 "Multilingual translation",
                 "Agentic workflow orchestration and monitoring"
@@ -173,6 +178,9 @@ export default function RootLayout({
               {children}
             </div>
 
+            {/* Toast notifications */}
+            <Toaster />
+
             <Analytics />
           </StackTheme>
         </StackProvider>
@@ -180,3 +188,4 @@ export default function RootLayout({
     </html>
   )
 }
+
