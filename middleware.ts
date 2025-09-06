@@ -1,25 +1,24 @@
 // middleware.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { stackServerApp } from '@/lib/stack';
+import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  // Protect dashboard and invoice routes
-  if (request.nextUrl.pathname.startsWith('/dashboard') || 
-      request.nextUrl.pathname.startsWith('/invoice/card')) {
-    try {
-      const user = await stackServerApp.getUser();
-      if (!user) {
-        // Redirect to sign-in if not authenticated
-        const signInUrl = new URL('/auth/signin', request.url);
-        signInUrl.searchParams.set('redirect', request.nextUrl.pathname);
-        return NextResponse.redirect(signInUrl);
-      }
-    } catch (error) {
-      // Redirect to sign-in on auth error
-      const signInUrl = new URL('/auth/signin', request.url);
-      signInUrl.searchParams.set('redirect', request.nextUrl.pathname);
-      return NextResponse.redirect(signInUrl);
-    }
+  const path = request.nextUrl.pathname;
+  const needsAuth =
+    path.startsWith("/dashboard") ||
+    path.startsWith("/invoice/card") ||
+    path.startsWith("/api/upload") ||
+    path.startsWith("/api/invoice");
+
+  if (!needsAuth) return NextResponse.next();
+
+  // Heuristic: Stack sets auth cookies; just check presence at the edge
+  const hasStackCookie = request.cookies.getAll()
+    .some(c => c.name.toLowerCase().includes("stack"));
+
+  if (!hasStackCookie) {
+    const signInUrl = new URL("/auth/signin", request.url);
+    signInUrl.searchParams.set("redirect", path);
+    return NextResponse.redirect(signInUrl);
   }
 
   return NextResponse.next();
@@ -27,10 +26,9 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/dashboard/:path*',
-    '/invoice/card/:path*',
-    '/api/upload',
-    '/api/invoice/:path*'
-  ]
+    "/dashboard/:path*",
+    "/invoice/card/:path*",
+    "/api/upload",
+    "/api/invoice/:path*",
+  ],
 };
-

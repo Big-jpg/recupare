@@ -1,23 +1,10 @@
 // lib/stack.ts
+import "server-only";
 import { StackServerApp } from "@stackframe/stack";
 
 export const stackServerApp = new StackServerApp({
+  // Use cookies for session on the server side of Next.js
   tokenStore: "nextjs-cookie",
+  // Let the library read the secret; being explicit avoids surprises:
+  secretServerKey: process.env.STACK_SECRET_SERVER_KEY!,
 });
-
-// Helper function to get current user on server side
-export async function getCurrentUser() {
-  try {
-    const user = await stackServerApp.getUser();
-    return user;
-  } catch {
-    return null;
-  }
-}
-
-// Helper function to require authentication
-export async function requireAuth() {
-  const user = await stackServerApp.getUser({ or: 'redirect' });
-  return user;
-}
-
