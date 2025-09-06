@@ -1,5 +1,6 @@
 // app/auth/signin/page.tsx
 "use client";
+export const dynamic = "force-dynamic";
 
 import { SignIn } from "@stackframe/stack";
 import Link from "next/link";

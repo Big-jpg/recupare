@@ -3,6 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import Providers from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -124,8 +125,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${inter.className} antialiased`}>
-        {/* Children will include our route-group layout which can suspend */}
-        {children}
+        <Providers>{children}</Providers>
         <Analytics />
       </body>
     </html>
