@@ -67,11 +67,72 @@ export async function initializeInvoiceTables() {
   }
 }
 
-// Existing agentic request functions (from Recupare)
+// Initialize agentic request tables
+export async function initializeAgenticTables() {
+  try {
+    // Create agentic_users table
+    await sql`
+      CREATE TABLE IF NOT EXISTS agentic_users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email VARCHAR(255) UNIQUE NOT NULL,
+        name VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    // Create agentic_requests table
+    await sql`
+      CREATE TABLE IF NOT EXISTS agentic_requests (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id VARCHAR(255) NOT NULL,
+        target_object VARCHAR(100) NOT NULL,
+        bounded_area VARCHAR(100) NOT NULL,
+        instructions TEXT NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        result JSONB,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `;
+
+    // Create indexes for better performance
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_agentic_users_email ON agentic_users(email);
+    `;
+    
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_agentic_requests_user_id ON agentic_requests(user_id);
+    `;
+
+    await sql`
+      CREATE INDEX IF NOT EXISTS idx_agentic_requests_status ON agentic_requests(status);
+    `;
+
+    console.log('Agentic tables initialized successfully');
+  } catch (error) {
+    console.error('Error initializing agentic tables:', error);
+    throw error;
+  }
+}
+
+// Initialize all tables
+export async function initializeAllTables() {
+  try {
+    await initializeInvoiceTables();
+    await initializeAgenticTables();
+    console.log('All database tables initialized successfully');
+  } catch (error) {
+    console.error('Error initializing database tables:', error);
+    throw error;
+  }
+}
+
+// Agentic request functions
 export async function createAgenticUser(email: string, name?: string) {
   const result = await sql`
-    INSERT INTO agentic_users (email, name, created_at)
-    VALUES (${email}, ${name || null}, NOW())
+    INSERT INTO agentic_users (email, name, created_at, updated_at)
+    VALUES (${email}, ${name || null}, NOW(), NOW())
     ON CONFLICT (email) DO UPDATE SET
       name = COALESCE(EXCLUDED.name, agentic_users.name),
       updated_at = NOW()

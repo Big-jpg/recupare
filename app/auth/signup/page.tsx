@@ -1,4 +1,6 @@
 // app/auth/signup/page.tsx
+"use client";
+
 import { SignUp } from "@stackframe/stack";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
